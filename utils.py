@@ -1,7 +1,6 @@
 import sys
-log_file = "todo" #TODO
 
-def logger(message, log_file=log_file):
+def logger(message, log_file="todo"): # TODO
     print(message)
     original_stdout = sys.stdout # Save a reference to the original standard output
     with open(log_file, 'a') as f:
@@ -11,4 +10,23 @@ def logger(message, log_file=log_file):
 
 
 def process_decisions(users, decisions, scores):
-    pass
+    pass # TODO (recuerda que tienes que guardar las decisiones anteriores si quieres usar la ventana)
+
+
+
+
+def prepare_data(users, resul_array):
+
+    resul_array = resul_array.tolist()
+    test_users = users.tolist()
+
+    user_tuples = list(zip(test_users, resul_array))
+    user_dict = array_to_dict(user_tuples)
+
+    return user_dict
+
+def array_to_dict(l):
+    d = dict()
+    [d[t[0]].append(t[1]) if t[0] in list(d.keys())
+     else d.update({t[0]: [t[1]]}) for t in l]
+    return d
