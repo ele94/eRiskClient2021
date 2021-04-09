@@ -1,14 +1,15 @@
-# TODO
 import string, re
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from sklearn.preprocessing import KBinsDiscretizer
 import pandas as pd
+from utils import load_pickle
 
 class TextFeaturizer():
 
     def __init__(self, params):
         self.params = params
-        self.est = KBinsDiscretizer() # TODO load trained discretizer
+        self.est = KBinsDiscretizer()
+        self.est = load_pickle(params["pickles_path"], params["discretizer_name"])
         self.nssi_corpus = load_nssi_corpus(params["nssi_corpus_path"])
 
     def featurize(self, window):

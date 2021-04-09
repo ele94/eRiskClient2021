@@ -1,52 +1,89 @@
 from data_client import DataClient, ServerClient
+from utils import logger, load_pickle, check_pickle, save_pickle, load_all_parameters, load_parameters
+from runs import Run
 
-client = ServerClient()
+runs_ids = [0, 1, 2, 3, 4]
 
-data = client.get_writings()
-print(data)
+def main():
 
+    client = ServerClient()
 
-
-# load classifier(s) (different for different runs?)
-# initialize user writings memory
-    # if user writings memory pickle exists: load
-    # else: create new
-
-# initialize tfidf featurizer (load trained tfidf vect)
-
-# start writings counter (?)
-
-# create runs 1, 2, 3, 4, 5
+    data = client.get_writings()
 
 
-# start loop:
 
-    # while: condition (until no new messages, or until 100 messages, whatever) (maybe until no new messages but decision frozen at 100 messages for some)
+def experiment():
 
-    # get batch of writings
+    first_try = True
 
-    # clean writings
+    client = ServerClient()
 
-    # save clean writins in user writings memory
+    params = load_parameters("params.yaml")
+    run_params = load_all_parameters("run_params.yaml")
 
-    # save user writings memory to pickle
+    logger("Starting experiment")
 
-    # for n in n_runs:
-        # get response to server for run n method for runs (parameters for runs)
+    # create runs 1, 2, 3, 4, 5
+    run_objects = []
+    for run_id in runs_ids:
+        new_run = Run(run_id, run_params[run_id])
+        run_objects.append(new_run)
 
-        # assemble response to server
+    # if its the first time were connecting to the server
+    if first_try:
+        # get first batch of writings
+        data = client.get_writings()
 
-    # try catch:
-        # send response to server
+        # initialize users list and users writing history
+        users = [user["nick"] for user in data]
+        user_writings_history = {user: [] for user in users}
+
+        # update writings history with first batch of writings
+        #user_writings_history = update_writings_history(data, user_writings_history)
+
+    else:
+        data = client.get_writings()
+        users = load_pickle(params["pickles_path"], params["users_name"])
+        user_writings_history = load_pickle(params["pickles_path"], params["writings_name"])
+        # load users and writing history from pickle
 
 
-#(class runs)
-# method for runs (parameters for runs):
+    keep_going = True
+    while data is not None and keep_going:
 
-    # use last x from user writings to get (parametrized) features for this iteration
+        # preprocess batch of writings
+        # TODO
 
-    # use features to make prediction
+        # update writings history with clean writings
+        user_writings_history = update_writings_history(data, user_writings_history)
 
-    # use predictions to format response to server
+        #save user writings history to pickle
+        #maybe save it only if an error arises?
+        save_pickle(params["pickles_path"], params["writings_name"], user_writings_history)
 
-    # return formatted response to server
+        # get decision for run and send decision for run
+        for run_object in run_objects:
+            decision = run_object.get_decisions(user_writings_history, users)
+            client.send_decision(decision, run_object.run_identifier) # todo add try catch here?
+            # if error, keep_going = false and print something about the error
+
+        # get new batch of writings
+        # he pasado esto para aqui abajo para que si data me da null ya salga del bucle
+        data = client.get_writings()
+        print(data)
+        if data is None:
+            keep_going = False
+            continue
+
+
+
+########## helper methods ##############################################3
+
+def update_writings_history(data, user_writings_history):
+    user_writings = {writing["nick"]: writing for writing in data}
+    user_writings_history = {user: (messages + [user_writings[user]] if user in user_writings.keys() else messages)
+                             for (user, messages) in user_writings_history.items()}
+    return user_writings_history
+
+if __name__ == '__main__':
+    main()

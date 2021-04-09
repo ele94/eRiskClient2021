@@ -1,0 +1,21 @@
+pickles_path: pickles
+classifier_name: classifier1.pkl
+discretize: True
+normalize: True
+discretize_encode: onehot
+discretize_size: 50
+discretize_strategy: quantile
+eval_window_size: 1
+feats: combined
+feats_window_size: 10
+max_features: 5000
+nssi: true
+prons: true
+range_max: 100
+text_features: all
+decision_window: 1
+---
+classifier_name: classifier2.pkl
+discretize: True
+normalize: True
+decision_window: 3
