@@ -1,6 +1,7 @@
 from data_client import DataClient, ServerClient
 from utils import logger, load_pickle, check_pickle, save_pickle, load_all_parameters, load_parameters
 from runs import Run
+from preprocessor import preprocess_data
 
 runs_ids = [0, 1, 2, 3, 4]
 
@@ -37,6 +38,7 @@ def experiment():
         # initialize users list and users writing history
         users = [user["nick"] for user in data]
         user_writings_history = {user: [] for user in users}
+        clean_user_writings_history = {user: [] for user in users}
 
         # update writings history with first batch of writings
         #user_writings_history = update_writings_history(data, user_writings_history)
@@ -45,6 +47,7 @@ def experiment():
         data = client.get_writings()
         users = load_pickle(params["pickles_path"], params["users_name"])
         user_writings_history = load_pickle(params["pickles_path"], params["writings_name"])
+        clean_user_writings_history = load_pickle(params["pickles_path"], params["clean_writings_name"])
         # load users and writing history from pickle
 
 
@@ -53,17 +56,20 @@ def experiment():
 
         # preprocess batch of writings
         # TODO
+        clean_data = preprocess_data(data)
 
         # update writings history with clean writings
         user_writings_history = update_writings_history(data, user_writings_history)
+        clean_user_writings_history = update_writings_history(clean_data, clean_user_writings_history)
 
         #save user writings history to pickle
         #maybe save it only if an error arises?
         save_pickle(params["pickles_path"], params["writings_name"], user_writings_history)
+        save_pickle(params["pickles_path"], params["clean_writings_name"], clean_user_writings_history)
 
         # get decision for run and send decision for run
         for run_object in run_objects:
-            decision = run_object.get_decisions(user_writings_history, users)
+            decision = run_object.get_decisions(clean_user_writings_history, users)
             client.send_decision(decision, run_object.run_identifier) # todo add try catch here?
             # if error, keep_going = false and print something about the error
 
