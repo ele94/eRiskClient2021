@@ -17,14 +17,14 @@ class Featurizer():
     def get_features(self, user_writings):
 
         logger("Windowfying data")
-        window_df = windowfy(user_writings, self.params["feats_window_size"])  # obviamente, solo cogemos la ultima ventana de cada usuario!
+        window_df = windowfy(user_writings, 10)  # obviamente, solo cogemos la ultima ventana de cada usuario!
 
         if self.params["feats"] == "combined":
             features_list = []
-            logger("Creating text features")
-            features_list.append(self.text_featurizer.featurize(window_df))
             logger("Creating tfidf features")
             features_list.append(self.tfidf_featurizer.featurize(window_df))
+            logger("Creating text features")
+            features_list.append(self.text_featurizer.featurize(window_df))
             logger("Combining features")
             features = combine_features(features_list)
 
@@ -56,7 +56,6 @@ def windowfy(user_writings, window_size):
 def join_window_elements(window: list) -> dict:
     joint_window = {}
     flatten = lambda l: [item for sublist in l for item in sublist]
-
     for key in window[0].keys():
         key_list = [message[key] for message in window]
         if type(key_list[0]) is list:
@@ -65,9 +64,11 @@ def join_window_elements(window: list) -> dict:
             joint_window[key] = key_list[0]
         elif key == 'date':
             joint_window[key] = key_list
-        elif key == 'round':
+        elif key == 'number':
             joint_window[key] = key_list[-1]
-        else:
+        elif type(key_list[0]) is str:
             joint_window[key] = ' .'.join(key_list)
+        else:
+            joint_window[key] = key_list[-1]
 
     return joint_window

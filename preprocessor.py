@@ -12,12 +12,13 @@ def preprocess_data(writings):
     preproc_writings = []
     for writing in writings:
         preproc_writing = writing.copy()
+        preproc_writing["text"] = writing["title"] + " ." + writing["content"]
         preproc_writing["clean_text"] = clean_text(writing["title"] + " ." + writing["content"])
-        if len(writing["clean_text"]) == 0:
+        if len(preproc_writing["clean_text"]) == 0:
             print("Text less than 0: ", writing["content"])
-        preproc_writing["tokens"] = tokenize_text(writing["clean_text"])
-        preproc_writing["pos_tags"] = pos_tag_text(writing["tokens"])
-        preproc_writing["stems"] = stemmize_text(writing["tokens"])
+        preproc_writing["tokens"] = tokenize_text(preproc_writing["clean_text"])
+        preproc_writing["pos_tags"] = pos_tag_text(preproc_writing["tokens"])
+        preproc_writing["stems"] = stemmize_text(preproc_writing["tokens"])
         preproc_writings.append(preproc_writing)
 
     return preproc_writings

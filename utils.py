@@ -1,11 +1,13 @@
 import sys, os, pickle, yaml
+from datetime import datetime
 
-def logger(message, log_file="todo"): # TODO
-    print(message)
+def logger(message, log_file="log.txt"):
+    txt = "[{}] {}".format(datetime.now(), message)
+    print(txt[:500])
     original_stdout = sys.stdout # Save a reference to the original standard output
     with open(log_file, 'a') as f:
         sys.stdout = f # Change the standard output to the file we created.
-        print(message)
+        print(txt[:500])
         sys.stdout = original_stdout # Reset the standard output to its original value
 
 
@@ -30,17 +32,62 @@ def update_parameters(params_file, params):
 
 ########## process decisions to send to server ##############################
 
-# gets in
+
 def process_decisions(users, decisions, scores):
-    pass # TODO (recuerda que tienes que guardar las decisiones anteriores si quieres usar la ventana)
+    user_decisions = prepare_data(users, decisions)
+    #user_scores = prepare_data(users, scores)
+
+    return process_decisions_f2(user_decisions)
+
+# gets in dictionary: user - list of decisions
+def process_decisions_f2(user_decisions):
+    decision_list = []
+    for user, decisions in user_decisions.items():
+        formatted_string = {"nick": user, "decision": decisions[-1], "score": decisions[-1]}
+        decision_list.append(formatted_string)
+
+    return decision_list
 
 
+def process_decisions_w2(user_decisions, user_scores, max_strategy=5):
+    decision_list = []
+    new_user_decisions = {}
+    new_user_sequence = {}
+
+    for user, decisions in user_decisions.items():
+        new_user_decisions[user] = []
+        new_user_sequence[user] = []
+
+    # politica de decisiones: decidimos que un usuario es positivo a partir del 5 mensaje positivo consecutivo
+    # a partir de ahi, todas las decisiones deben ser positivas, y la secuencia mantenerse estable
+    for user, decisions in user_decisions.items():
+        count = 0
+        for i in range(0, len(decisions)):
+            if decisions[i] == 0 and count < max_strategy:
+                count = 0
+                new_user_decisions[user].append(0)
+                new_user_sequence[user].append(i)
+            elif decisions[i] == 1 and count < max_strategy:
+                count = count + 1
+                new_user_decisions[user].append(0)
+                new_user_sequence[user].append(i)
+            elif count >= max_strategy:
+                new_user_decisions[user].append(1)
+                new_user_sequence[user].append(new_user_sequence[user][i - 1])
+
+    # lo montamos en el formato que acepta el evaluador
+    for user, decisions in new_user_decisions.items():
+        decision_list.append(
+            {"nick": user, "decision": new_user_decisions[user][-1], "score":
+                user_scores[user][-1]})
+
+    return decision_list
 
 
 def prepare_data(users, resul_array):
 
     resul_array = resul_array.tolist()
-    test_users = users.tolist()
+    test_users = users
 
     user_tuples = list(zip(test_users, resul_array))
     user_dict = array_to_dict(user_tuples)

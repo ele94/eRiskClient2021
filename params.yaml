@@ -1,0 +1,5 @@
+pickles_path: pickles
+users_name: users_list.pkl
+writings_name: users_writings.pkl
+clean_writings_name: clean_users_writings.pkl
+range_max: 100

@@ -7,8 +7,8 @@ get_request = "https://erisk.irlab.org/challenge-service/getwritings/{}"  # form
 post_request = "https://erisk.irlab.org/challenge-service/submit/{}/{}"  # format: team token, run number (0-4)
 
 # ACTUAL SERVER
-# get_request = "https://erisk.irlab.org/challenge-t1/getwritings/{}"
-# post_request = "https://erisk.irlab.org/challenge-t1/submit/{}/{}"
+# get_request = "https://erisk.irlab.org/challenge-t2/getwritings/{}"
+# post_request = "https://erisk.irlab.org/challenge-t2/submit/{}/{}"
 team_token = "h2JqS59z9yifPxX1cUnrsNo0SJ+E57ZZneOg3kvd4A"
 
 
@@ -42,14 +42,25 @@ class ServerClient(DataClient):
     def __init__(self):
         super().__init__()
 
+    # def get_all_writings(self):
+    #     url_get = get_request.format(team_token)
+    #     print(url_get)
+    #
+    #     r = requests.get(url=url_get)
+    #     data = r.json()
+    #
+    #     self.users.extend([post['nick'] for post in data])
+    #
+    #     return self.users
+
+    #TODO if error arises, return None
     def get_writings(self):
         url_get = get_request.format(team_token)
         print(url_get)
-
         r = requests.get(url=url_get)
         data = r.json()
 
-        self.users.extend([post['nick'] for post in data])
+        #self.users.extend([post['nick'] for post in data])
 
         return data
 

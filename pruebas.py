@@ -5,7 +5,7 @@ from preprocessor import preprocess_data
 
 runs_ids = [0, 1, 2, 3, 4]
 
-def main():
+def tests():
 
     client = ServerClient()
 
@@ -13,7 +13,7 @@ def main():
 
 
 
-def experiment():
+def main():
 
     first_try = True
 
@@ -25,15 +25,23 @@ def experiment():
     logger("Starting experiment")
 
     # create runs 1, 2, 3, 4, 5
+    logger("Creating run objects")
     run_objects = []
     for run_id in runs_ids:
+        logger("Run {} with params {}".format(run_id, run_params[run_id]))
         new_run = Run(run_id, run_params[run_id])
         run_objects.append(new_run)
 
+    current_sequence = 0
+
     # if its the first time were connecting to the server
     if first_try:
+        logger("Getting first batch of data")
         # get first batch of writings
         data = client.get_writings()
+        current_sequence = data[0]["number"]
+        logger("Got data of length {}, sequence {}".format(len(data), data[0]["number"]))
+        logger("Data: {}".format(data))
 
         # initialize users list and users writing history
         users = [user["nick"] for user in data]
@@ -44,7 +52,11 @@ def experiment():
         #user_writings_history = update_writings_history(data, user_writings_history)
 
     else:
+        logger("Continuing getting data batch")
         data = client.get_writings()
+        current_sequence = data[0]["number"]
+        logger("Got data of length {}, sequence {}".format(len(data), data[0]["number"]))
+        logger("Data: {}".format(data))
         users = load_pickle(params["pickles_path"], params["users_name"])
         user_writings_history = load_pickle(params["pickles_path"], params["writings_name"])
         clean_user_writings_history = load_pickle(params["pickles_path"], params["clean_writings_name"])
@@ -52,10 +64,9 @@ def experiment():
 
 
     keep_going = True
+    max = params["range_max"]
     while data is not None and keep_going:
-
-        # preprocess batch of writings
-        # TODO
+        logger("Preprocessing data for sequence {}".format(current_sequence))
         clean_data = preprocess_data(data)
 
         # update writings history with clean writings
@@ -63,24 +74,38 @@ def experiment():
         clean_user_writings_history = update_writings_history(clean_data, clean_user_writings_history)
 
         #save user writings history to pickle
-        #maybe save it only if an error arises?
         save_pickle(params["pickles_path"], params["writings_name"], user_writings_history)
         save_pickle(params["pickles_path"], params["clean_writings_name"], clean_user_writings_history)
 
         # get decision for run and send decision for run
         for run_object in run_objects:
-            decision = run_object.get_decisions(clean_user_writings_history, users)
-            client.send_decision(decision, run_object.run_identifier) # todo add try catch here?
+            logger("Getting decisions for run {} in sequence {}".format(run_object.run_identifier, current_sequence))
+            if current_sequence <= max:
+                decision = run_object.get_decisions(clean_user_writings_history, users)
+                logger("Decision: {}".format(decision))
+            else:
+                logger("Reached 100 messages. Exiting")
+                keep_going = False
+                decision = run_object.get_old_decisions()  # todo i dont know about this??
+            logger("Sending decision for run {} in sequence {}".format(run_object.run_identifier, current_sequence))
+            status_code, response = client.send_decision(decision, run_object.run_identifier) # todo add try catch here?
+            logger("Response: {}, {}".format(status_code, response))
+
+            if status_code != 200:
+                logger("WARNING, RESPONSE: {}".format(response))
+                keep_going = False
             # if error, keep_going = false and print something about the error
 
         # get new batch of writings
         # he pasado esto para aqui abajo para que si data me da null ya salga del bucle
+        logger("Getting new data batch")
         data = client.get_writings()
-        print(data)
+        logger("Response: {}".format(data))
         if data is None:
             keep_going = False
             continue
 
+        current_sequence = data[0]["number"]
 
 
 ########## helper methods ##############################################3

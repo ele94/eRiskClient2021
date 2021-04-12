@@ -2,27 +2,27 @@ import string, re
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from sklearn.preprocessing import KBinsDiscretizer
 import pandas as pd
-from utils import load_pickle
+from utils import load_pickle, logger
 
 class TextFeaturizer():
 
     def __init__(self, params):
         self.params = params
         self.est = KBinsDiscretizer()
-        self.est = load_pickle(params["pickles_path"], params["discretizer_name"])
-        self.nssi_corpus = load_nssi_corpus(params["nssi_corpus_path"])
+        self.est = load_pickle("pickles", params["discretizer_name"])
+        self.nssi_corpus = load_nssi_corpus("data/nssicorpus.txt")
 
     def featurize(self, window):
-
         if self.params["text_features"] == "all":
-            feats = create_all_features(window, self.nssi_corpus, self.params["normalize"])
+            feats = create_all_features(window, self.nssi_corpus)
+        elif self.params["text_features"] == "select":
+            feats = create_select_features(window, self.nssi_corpus)
+        elif self.params["text_features"] == "run3":
+            feats = create_select2_features(window, self.nssi_corpus)
         else:
-            feats = create_select_features(
-                window, self.nssi_corpus, self.params["normalize"], prons=self.params["prons"], nssi=self.params["nssi"])
+            feats = create_select3_features(window, self.nssi_corpus)
 
-        if self.params["discretize"]:
-            feats = self.discretize_features(feats)
-
+        feats = self.discretize_features(feats)
         return feats
 
     def discretize_features(self, feats):
@@ -41,6 +41,61 @@ def create_select_features(window_df, nssi_corpus, normalize=True, prons=True, n
     if nssi:
         for key, values in nssi_corpus.items():
             new_feats[key] = window_df['stems'].map(lambda x: sum((' '.join(x)).count(word) for word in values))
+
+    if normalize:
+        for feature in new_feats.columns:
+            new_feats[feature] = new_feats[feature] / text_length
+
+    return new_feats
+
+
+def create_select2_features(window_df, nssi_corpus, normalize=True):
+    normalize_exceptions = ['char_count', 'word_density']
+    exclude_features = ['char_count', 'word_count']
+
+    new_feats = pd.DataFrame()
+
+    text_length = window_df['clean_text'].map(len)
+
+    new_feats['char_count'] = window_df['clean_text'].map(len)
+    new_feats['word_count'] = window_df['clean_text'].map(lambda x: len(x.split()))
+
+    new_feats['questions_count'] = window_df['text'].map(lambda x: len(re.findall(r'\?', x)))
+    new_feats['exclamations_count'] = window_df['text'].map(lambda x: len(re.findall(r'\!', x)))
+    new_feats['smilies'] = window_df['text'].map(lambda x: len(re.findall(r'\:\)+|\(+\:', x)))
+    new_feats['sad_faces'] = window_df['text'].map(lambda x: len(re.findall(r'\:\(+|\)+\:', x)))
+
+    reg = r'\bI\b|\bme\b|\bmine\b|\bmy\b|\bmyself\b'
+    new_feats['first_prons'] = window_df['clean_text'].map(lambda x: len(re.findall(reg, x)))
+
+    sid = SentimentIntensityAnalyzer()
+    new_feats['sentiment'] = window_df['clean_text'].map(lambda x: round(sid.polarity_scores(x)['compound'], 2))
+    for key, values in nssi_corpus.items():
+        new_feats[key] = window_df['stems'].map(lambda x: sum((' '.join(x)).count(word) for word in values))
+
+    if normalize:
+        for feature in new_feats.columns:
+            if feature not in normalize_exceptions:
+                new_feats[feature] = new_feats[feature] / text_length
+
+    for feat in exclude_features:
+        new_feats.drop(feat, inplace=True, axis=1)
+
+    return new_feats
+
+
+def create_select3_features(window_df, nssi_corpus, normalize=True):
+    new_feats = pd.DataFrame()
+    text_length = window_df['clean_text'].map(len)
+
+    reg = r'\bI\b|\bme\b|\bmine\b|\bmy\b|\bmyself\b'
+    new_feats['first_prons'] = window_df['clean_text'].map(lambda x: len(re.findall(reg, x)))
+
+    for key, values in nssi_corpus.items():
+        new_feats[key] = window_df['stems'].map(lambda x: sum((' '.join(x)).count(word) for word in values))
+
+    sid = SentimentIntensityAnalyzer()
+    new_feats['sentiment'] = window_df['clean_text'].map(lambda x: round(sid.polarity_scores(x)['compound'], 2))
 
     if normalize:
         for feature in new_feats.columns:

@@ -1,21 +1,34 @@
-pickles_path: pickles
-classifier_name: classifier1.pkl
-discretize: True
-normalize: True
-discretize_encode: onehot
-discretize_size: 50
-discretize_strategy: quantile
-eval_window_size: 1
+classifier_name: classifier0.pkl
+discretizer_name: discretizer0.pkl
+tfidf_vect_name: tfidf_vectorizer0.pkl
 feats: combined
-feats_window_size: 10
-max_features: 5000
-nssi: true
-prons: true
 range_max: 100
 text_features: all
-decision_window: 1
+---
+classifier_name: classifier1.pkl
+discretizer_name: discretizer1.pkl
+tfidf_vect_name: tfidf_vectorizer1.pkl
+feats: combined
+range_max: 100
+text_features: select
 ---
 classifier_name: classifier2.pkl
-discretize: True
-normalize: True
-decision_window: 3
+discretizer_name: discretizer2.pkl
+tfidf_vect_name: tfidf_vectorizer2.pkl
+feats: combined
+range_max: 100
+text_features: all
+---
+classifier_name: classifier3.pkl
+discretizer_name: discretizer3.pkl
+tfidf_vect_name: tfidf_vectorizer3.pkl
+feats: combined
+range_max: 100
+text_features: run3
+---
+classifier_name: classifier4.pkl
+discretizer_name: discretizer4.pkl
+tfidf_vect_name: tfidf_vectorizer4.pkl
+feats: combined
+range_max: 100
+text_features: run4
