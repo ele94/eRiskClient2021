@@ -84,8 +84,8 @@ def main():
                 decision = run_object.get_decisions(clean_user_writings_history, users)
                 logger("Decision: {}".format(decision))
             else:
-                logger("Reached 100 messages. Exiting")
-                keep_going = False
+                logger("Reached max messages. Sending old decisions")
+                keep_going = True
                 decision = run_object.get_old_decisions()  # todo i dont know about this??
             logger("Sending decision for run {} in sequence {}".format(run_object.run_identifier, current_sequence))
             status_code, response = client.send_decision(decision, run_object.run_identifier) # todo add try catch here?
