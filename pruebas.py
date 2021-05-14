@@ -1,5 +1,5 @@
-from data_client import DataClient, ServerClient
-from utils import logger, load_pickle, check_pickle, save_pickle, load_all_parameters, load_parameters
+from data_client import DataClient, ServerClient, PickleClient
+from utils import logger, load_pickle, check_pickle, save_pickle, load_all_parameters, load_parameters, write_csv
 from runs import Run
 from preprocessor import preprocess_data
 
@@ -13,9 +13,74 @@ def tests():
 
 
 
+def eval():
+
+    params = load_parameters("params.yaml")
+    client = PickleClient(params)
+    run_params = load_all_parameters("run_params.yaml")
+
+    logger("Starting post-task evaluation")
+
+    # create runs 1, 2, 3, 4, 5
+    logger("Creating run objects")
+    run_objects = []
+    for run_id in runs_ids:
+        logger("Run {} with params {}".format(run_id, run_params[run_id]))
+        new_run = Run(run_id, run_params[run_id])
+        run_objects.append(new_run)
+
+    clean_data = client.get_writings()
+    current_sequence = clean_data[0]["number"]
+
+    logger("Got data of length {}, sequence {}".format(len(clean_data), clean_data[0]["number"]))
+    logger("Data: {}".format(clean_data))
+
+    # initialize users list and users writing history
+    users = [user["nick"] for user in clean_data]
+    clean_user_writings_history = {user: [] for user in users}
+
+    max = 470
+    keep_going = True
+    eval_resuls = []
+    positive_users = []
+    while data is not None and keep_going:
+
+        if current_sequence >= max:
+            keep_going = False
+        clean_user_writings_history = update_writings_history(clean_data, clean_user_writings_history)
+
+        # get decision for run and send decision for run
+        for run_object in run_objects:
+            logger("Getting decisions for run {} in sequence {}".format(run_object.run_identifier, current_sequence))
+            decision = run_object.get_sequence_decisions(clean_user_writings_history, users)
+            logger("Decision: {}".format(decision))
+            logger("Sending decision for run {} in sequence {}".format(run_object.run_identifier, current_sequence))
+            resuls = client.send_decision(decision, run_object.run_identifier)
+            logger("Decision resuls: {}".format(resuls))
+            eval_resuls[run_object.run_identifier] = resuls
+
+
+        # get new batch of writings
+        # he pasado esto para aqui abajo para que si data me da null ya salga del bucle
+        logger("Getting new data batch")
+        clean_data = client.get_writings()
+        logger("Response: {}".format(clean_data))
+        if clean_data is None:
+            keep_going = False
+            continue
+
+        current_sequence = data[0]["number"]
+
+    for run_id in runs_id:
+        logger("Eval resuls: {}".format(eval_resuls[run_id]))
+        write_csv(eval_resuls[run_id], run_id)
+
+
+
+
 def main():
 
-    first_try = True
+    first_try = False
 
     client = ServerClient()
 
@@ -117,4 +182,4 @@ def update_writings_history(data, user_writings_history):
     return user_writings_history
 
 if __name__ == '__main__':
-    main()
+    eval()

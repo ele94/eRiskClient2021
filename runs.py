@@ -26,11 +26,25 @@ class Run():
         decisions = self.classifier.predict(features)
         logger("There is positive decisions: {}".format(1 in decisions))
         if 1 in decisions:
-            logger("Number of positive decisions: {}".format(len([decision for decision in decisions if decision==1])))
+            logger("Number of positive decisions: {}".format(len([decision for decision in decisions if decision == 1])))
         scores = decisions
         formatted_decisions = process_decisions(users, decisions, scores)
         self.decisions_history.append(formatted_decisions)
         save_pickle("pickles", "decisions_history.pkl", self.decisions_history)
+        return formatted_decisions
+
+    # for post-task evlauation
+    def get_sequence_decisions(self, user_writings, users):
+        logger("Classifying writings for run {}".format(self.run_identifier))
+        features = self.featurizer.get_features(user_writings)  # should return features without user and in window
+        decisions = self.classifier.predict(features)
+        logger("There is positive decisions: {}".format(1 in decisions))
+        if 1 in decisions:
+            logger(
+                "Number of positive decisions: {}".format(len([decision for decision in decisions if decision == 1])))
+        scores = decisions
+        formatted_decisions = process_decision_seq(users, decisions, scores)
+        self.decisions_history.append(formatted_decisions)
         return formatted_decisions
 
     def get_old_decisions(self):

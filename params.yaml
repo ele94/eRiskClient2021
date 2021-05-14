@@ -2,4 +2,6 @@ pickles_path: pickles
 users_name: users_list.pkl
 writings_name: users_writings.pkl
 clean_writings_name: clean_users_writings.pkl
-range_max: 100
+range_max: 473
+csv_name1: resuls_1.pkl
+
