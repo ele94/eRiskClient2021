@@ -115,5 +115,5 @@ class PickleClient(DataClient):
         if not run:
             run = 0
 
-        results = eval_performance([decisions], self.g_truth)
+        results = eval_performance(decisions, self.g_truth)
         return results
