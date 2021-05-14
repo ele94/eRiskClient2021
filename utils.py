@@ -51,7 +51,7 @@ def process_decisions_f2(user_decisions):
 def process_decision_seq(users, decisions, scores):
     user_decisions = prepare_data(users, decisions)
 
-    return process_decisions_w2(user_decisions)
+    return process_decisions_w2(user_decisions, user_decisions)
 
 
 def process_decisions_w2(user_decisions, user_scores, max_strategy=1):
