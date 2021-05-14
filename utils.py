@@ -49,7 +49,7 @@ def process_decisions_f2(user_decisions):
     return decision_list
 
 def process_decision_seq(users, all_decisions, scores):
-    user_decisions = prepare_data(users, all_decisions)
+    user_decisions = prepare_data_v2(users, all_decisions)
 
     return process_decisions_w2(user_decisions, user_decisions)
 
@@ -98,6 +98,16 @@ def prepare_data(users, resul_array):
     user_dict = array_to_dict(user_tuples)
 
     return user_dict
+
+
+def prepare_data_v2(users, resul_array):
+
+    user_dict = {}
+    for index, user in enumerate(users):
+        user_dict[user] = [resul_list[index] for resul_list in resul_array]
+
+    return user_dict
+
 
 def array_to_dict(l):
     d = dict()

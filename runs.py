@@ -42,8 +42,7 @@ class Run():
         self.old_decisions.append(decisions)
         logger("There is positive decisions: {}".format(1 in decisions))
         if 1 in decisions:
-            logger(
-                "Number of positive decisions: {}".format(len([decision for decision in decisions if decision == 1])))
+            logger("Number of positive decisions: {}".format(len([decision for decision in decisions if decision == 1])))
         scores = decisions
         formatted_decisions = process_decision_seq(users, self.old_decisions, scores)
         self.decisions_history.append(formatted_decisions)
