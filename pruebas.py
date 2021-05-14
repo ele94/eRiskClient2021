@@ -53,7 +53,7 @@ def eval():
         for run_object in run_objects:
             logger("Getting decisions for run {} in sequence {}".format(run_object.run_identifier, current_sequence))
             decision = run_object.get_sequence_decisions(clean_user_writings_history, users)
-            logger("Decision: {}".format(decision))
+            logger("Decision: {}".format(decision[-1]))
             logger("Sending decision for run {} in sequence {}".format(run_object.run_identifier, current_sequence))
             resuls = client.send_decision(decision, run_object.run_identifier)
             logger("Decision resuls: {}".format(resuls))

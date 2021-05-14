@@ -104,7 +104,7 @@ class PickleClient(DataClient):
 
         users_slice = []
         for user, writings_list in self.all_writings.items():
-            if len(writings_list) >= self.index:
+            if len(writings_list) > self.index:
                 users_slice.append(writings_list[self.index])
 
         self.index += 1

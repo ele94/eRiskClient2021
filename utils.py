@@ -51,7 +51,7 @@ def process_decisions_f2(user_decisions):
 def process_decision_seq(users, decisions, scores):
     user_decisions = prepare_data(users, decisions)
 
-    return process_decisions_w2(user_decisions, user_decisions)
+    return process_decisions_w3(user_decisions, user_decisions)
 
 
 def process_decisions_w2(user_decisions, user_scores, max_strategy=1):
@@ -68,15 +68,15 @@ def process_decisions_w2(user_decisions, user_scores, max_strategy=1):
     for user, decisions in user_decisions.items():
         count = 0
         for i in range(0, len(decisions)):
-            if decisions[i] == 0 and count < max_strategy:
+            count = count+1
+            if decisions[i] == 0 and count <= max_strategy:
                 count = 0
                 new_user_decisions[user].append(0)
                 new_user_sequence[user].append(i)
-            elif decisions[i] == 1 and count < max_strategy:
-                count = count + 1
-                new_user_decisions[user].append(0)
+            elif decisions[i] == 1 and count <= max_strategy:
+                new_user_decisions[user].append(1)
                 new_user_sequence[user].append(i)
-            elif count >= max_strategy:
+            else:
                 new_user_decisions[user].append(1)
                 new_user_sequence[user].append(new_user_sequence[user][i - 1])
 
