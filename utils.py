@@ -48,8 +48,8 @@ def process_decisions_f2(user_decisions):
 
     return decision_list
 
-def process_decision_seq(users, decisions, scores):
-    user_decisions = prepare_data(users, decisions)
+def process_decision_seq(users, all_decisions, scores):
+    user_decisions = prepare_data(users, all_decisions)
 
     return process_decisions_w2(user_decisions, user_decisions)
 

@@ -10,6 +10,7 @@ class Run():
         self.classifier = load_pickle("pickles", params["classifier_name"])
         self.run_identifier = run
         self.decisions_history = []
+        self.old_decisions = {}
         logger("Initializing run {} with parameters {}".format(self.run_identifier, params))
 
     def get_run(self):
@@ -38,12 +39,13 @@ class Run():
         logger("Classifying writings for run {}".format(self.run_identifier))
         features = self.featurizer.get_features(user_writings)  # should return features without user and in window
         decisions = self.classifier.predict(features)
+        self.old_decisions.append(decisions)
         logger("There is positive decisions: {}".format(1 in decisions))
         if 1 in decisions:
             logger(
                 "Number of positive decisions: {}".format(len([decision for decision in decisions if decision == 1])))
         scores = decisions
-        formatted_decisions = process_decision_seq(users, decisions, scores)
+        formatted_decisions = process_decision_seq(users, self.old_decisions, scores)
         self.decisions_history.append(formatted_decisions)
         return formatted_decisions
 
