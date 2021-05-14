@@ -1,5 +1,5 @@
 from featurizer import Featurizer
-from utils import process_decisions, logger, load_pickle, save_pickle
+from utils import process_decisions, process_decision_seq, logger, load_pickle, save_pickle
 
 
 class Run():
