@@ -4,14 +4,14 @@ import xml.etree.ElementTree as ET
 from utils import eval_performance
 
 # TEST SERVER
-# get_request = "https://erisk.irlab.org/challenge-service/getwritings/{}"  # format: team token
-# post_request = "https://erisk.irlab.org/challenge-service/submit/{}/{}"  # format: team token, run number (0-4)
+get_request = "https://erisk.irlab.org/challenge-service/getwritings/{}"  # format: team token
+post_request = "https://erisk.irlab.org/challenge-service/submit/{}/{}"  # format: team token, run number (0-4)
 
 # ACTUAL SERVER
 import utils
 
-get_request = "https://erisk.irlab.org/challenge-t2/getwritings/{}"
-post_request = "https://erisk.irlab.org/challenge-t2/submit/{}/{}"
+#get_request = "https://erisk.irlab.org/challenge-t2/getwritings/{}"
+#post_request = "https://erisk.irlab.org/challenge-t2/submit/{}/{}"
 team_token = "h2JqS59z9yifPxX1cUnrsNo0SJ+E57ZZneOg3kvd4A"
 
 
