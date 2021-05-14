@@ -10,7 +10,7 @@ class Run():
         self.classifier = load_pickle("pickles", params["classifier_name"])
         self.run_identifier = run
         self.decisions_history = []
-        self.old_decisions = {}
+        self.old_decisions = []
         logger("Initializing run {} with parameters {}".format(self.run_identifier, params))
 
     def get_run(self):
