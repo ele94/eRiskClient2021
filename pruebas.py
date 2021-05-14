@@ -41,7 +41,7 @@ def eval():
 
     max = 470
     keep_going = True
-    eval_resuls = []
+    eval_resuls = {}
     positive_users = []
     while clean_data is not None and keep_going:
 
