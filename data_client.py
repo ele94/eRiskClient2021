@@ -103,7 +103,7 @@ class PickleClient(DataClient):
     def get_writings(self):
 
         users_slice = {}
-        for user, writings_list in self.all_writings:
+        for user, writings_list in self.all_writings.items():
             if len(writings_list) >= self.index:
                 users_slice[user] = writings_list[self.index]
 
