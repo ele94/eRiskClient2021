@@ -43,7 +43,7 @@ def eval():
     keep_going = True
     eval_resuls = []
     positive_users = []
-    while data is not None and keep_going:
+    while clean_data is not None and keep_going:
 
         if current_sequence >= max:
             keep_going = False
@@ -69,7 +69,7 @@ def eval():
             keep_going = False
             continue
 
-        current_sequence = data[0]["number"]
+        current_sequence = clean_data[0]["number"]
 
     for run_id in runs_id:
         logger("Eval resuls: {}".format(eval_resuls[run_id]))
