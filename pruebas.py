@@ -71,7 +71,7 @@ def eval():
 
         current_sequence = clean_data[0]["number"]
 
-    for run_id in runs_id:
+    for run_id in runs_ids:
         logger("Eval resuls: {}".format(eval_resuls[run_id]))
         write_csv(eval_resuls[run_id], run_id)
 
