@@ -39,7 +39,7 @@ def eval():
     users = [user["nick"] for user in clean_data]
     clean_user_writings_history = {user: [] for user in users}
 
-    max = 10
+    max = 100
     keep_going = True
     eval_resuls = {}
     positive_users = []
